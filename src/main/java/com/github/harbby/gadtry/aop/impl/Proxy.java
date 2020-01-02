@@ -41,7 +41,6 @@ public interface Proxy
         private InvocationHandler handler;
         private ClassLoader classLoader;
         private Object target;
-        private String basePackage;
 
         public ProxyBuilder(Class<?> superclass)
         {
@@ -68,12 +67,6 @@ public interface Proxy
             return this;
         }
 
-        public final ProxyBuilder basePackage(String basePackage)
-        {
-            this.basePackage = basePackage;
-            return this;
-        }
-
         public ProxyBuilder setClassLoader(ClassLoader classLoader)
         {
             this.classLoader = classLoader;
@@ -84,16 +77,16 @@ public interface Proxy
         {
             checkState(handler != null, "InvocationHandler is null");
             Class<?>[] interfaces = Arrays.asArray(superclass, interfacesList);
-            if (superclass.isInterface() && basePackage == null) {
+            if (superclass.isInterface()) {
                 return JdkProxy.newProxyInstance(classLoader, handler, interfaces);
             }
             else {
                 checkState(!Modifier.isFinal(superclass.getModifiers()), superclass + " is final");
                 if (target != null) {
-                    return JavassistProxy.newProxyInstance(classLoader, basePackage, target, handler, interfaces);
+                    return JavassistProxy.newProxyInstance(classLoader, target, handler, interfaces);
                 }
                 else {
-                    return JavassistProxy.newProxyInstance(classLoader, basePackage, handler, interfaces);
+                    return JavassistProxy.newProxyInstance(classLoader, handler, interfaces);
                 }
             }
         }
